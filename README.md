@@ -79,12 +79,13 @@ Returns metadata about the currently-loaded dataset, plus the source data's and 
 
 Environment variables (see `.env.example` — copy it to `.env` for local development):
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `DATA_URL` | BookWalker's public dump URL | Where to fetch the `.sqlite.zst` dump from |
-| `DATA_DIR` | `./data` | Where downloaded/extracted database files are stored |
-| `BIND_ADDR` | `0.0.0.0:8362` | Address the HTTP server binds to |
-| `REFRESH_SECRET` | *(required)* | Secret required to call `/internal/refresh` |
+| Variable         | Default                      | Description                                                                             |
+| ---------------- | ---------------------------- | --------------------------------------------------------------------------------------- |
+| `DATA_URL`       | BookWalker's public dump URL | Where to fetch the `.sqlite.zst` dump from                                              |
+| `DATA_DIR`       | `./data`                     | Where downloaded/extracted database files are stored                                    |
+| `BIND_ADDR`      | `0.0.0.0:8362`               | Address the HTTP server binds to                                                        |
+| `DOCKER_PORT`    | `8362`                       | The port to expose in the Docker container, use `127.0.0.1:8362` to only expose locally |
+| `REFRESH_SECRET` | *(required)*                 | Secret required to call `/internal/refresh`                                             |
 
 ## Running
 
