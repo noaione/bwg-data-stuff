@@ -2,9 +2,9 @@ import { defineInjections } from '@makoojs/cli';
 
 export default defineInjections({
   injections: {
-    'hello-world': {
+    settings: {
       injectAt: 'body',
-      component: './hello-world/app.vue',
-    }
-  }
+      component: './settings/app.vue',
+    },
+  },
 });

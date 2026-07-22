@@ -17,6 +17,7 @@ Content ID can either be TSID prefixed with `CNT_` or just the TSID.
   "productId": "PRD_0MN9G2H55QAG",
   "title": "The Anemone Feels the Heat, Vol. 3",
   "geoBlocks": {
+    "global": false,
     "allowed": ["JP", "US", "CA"],
     "blocked": ["CN", "KR", "RU"]
   }
@@ -98,6 +99,19 @@ Without docker:
 cargo build --release
 ./target/release/bwg-data-stuff
 ```
+
+## Userscript
+
+`injections/` is a [Makoo](https://makoojs.github.io/Makoo/) (Vue) userscript project that injects live geo-block info directly into BookWalker's own volume/chapter pages, next to the existing SERIES/PUBLISHER/ARTIST attribute list.
+
+Build it:
+```bash
+pnpm install
+pnpm build
+```
+This produces `dist/bwg-data-stuff.user.js`. Install it in Tampermonkey/Violentmonkey, then open the userscript manager's **BWG Settings** menu command to set the Host URL to a running instance of this API (defaults to `https://bwg-data-api.serik.at`). "Enable auto geo-block check" controls whether the check runs automatically on page load or only when you click "Check geo-blocking".
+
+For local development, `pnpm dev` starts a dev server with HMR (per Makoo's own workflow).
 
 ## License
 
