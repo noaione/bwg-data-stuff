@@ -42,13 +42,31 @@ Or if with `?normalize=true` query parameter:
 
 ### `/api/info`
 
-Returns metadata about the currently-loaded dataset (from the dump's `export_metadata` table): schema version, generation timestamp, and per-table row counts.
+Returns metadata about the currently-loaded dataset, plus the source data's and this service's own provenance/license info.
 
 ```json
 {
-  "generated_at": "2026-07-21T00:00:00.100Z",
-  "row_counts": { "products": 87729, "series": 13700, "...": "..." },
-  "schema_version": 4
+  "dataset": {
+    "generatedAt": "2026-07-21T00:00:00.100Z",
+    "schemaVersion": 4,
+    "rowCounts": { "products": 87729, "series": 13700, "...": "..." }
+  },
+  "source": {
+    "name": "BookWalker Data",
+    "url": "https://data.bookwalker.com/",
+    "license": {
+      "name": "BookWalker Data Export License",
+      "url": "https://static.bookwalker.com/legal/data-tos.html",
+      "basedOn": "CC BY-NC-SA 4.0",
+      "basedOnUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+    }
+  },
+  "service": {
+    "name": "bwg-data-stuff",
+    "version": "0.1.0",
+    "sourceCode": "https://github.com/noaione/bwg-data-stuff",
+    "license": { "name": "MIT", "url": "https://github.com/noaione/bwg-data-stuff/blob/main/LICENSE" }
+  }
 }
 ```
 

@@ -2,5 +2,6 @@
 
 data/*.zst
 data/*.sqlite
+/sandbox
 
 .env
