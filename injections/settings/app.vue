@@ -39,7 +39,7 @@ function cancel() {
 <template>
   <div v-if="isOpen" class="bwgstuff-overlay" @click.self="cancel">
     <div class="bwgstuff-modal">
-      <h2>BWG Settings</h2>
+      <h2>BWG Data Settings</h2>
 
       <label class="bwgstuff-field">
         <span>Host URL</span>

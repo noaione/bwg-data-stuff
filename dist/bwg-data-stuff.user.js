@@ -2145,7 +2145,7 @@ function startGeoblockInjector() {
 		const makooTasks = [];
 		makooTasks.push(we({
 			"id": "settings",
-			"injectAt": "body",
+			"injectAt": "html",
 			"artifact": app_default,
 			"options": {
 				"alive": false,
