@@ -32,7 +32,7 @@ var d$1 = new Set();
 		})(e));
 	};
 
-_virtual_monkey_css_side_effects_default(` .bwgstuff-overlay[data-v-163674e9]{z-index:999999;background:#00000080;justify-content:center;align-items:center;font-family:system-ui,sans-serif;display:flex;position:fixed;inset:0}.bwgstuff-modal[data-v-163674e9]{color:#1a1a1a;background:#fff;border-radius:12px;gap:1rem;width:min(420px,100vw - 32px);padding:1.5rem;display:grid;box-shadow:0 20px 45px #00000040}.bwgstuff-modal h2[data-v-163674e9]{margin:0;font-size:1.1rem}.bwgstuff-field[data-v-163674e9],.bwgstuff-checkbox[data-v-163674e9]{gap:.35rem;font-size:.9rem;display:grid}.bwgstuff-checkbox[data-v-163674e9]{grid-auto-flow:column;justify-content:start;align-items:center;gap:.5rem}.bwgstuff-field input[type=text][data-v-163674e9]{font:inherit;border:1px solid #ccc;border-radius:6px;padding:.5rem .6rem}.bwgstuff-actions[data-v-163674e9]{justify-content:flex-end;gap:.5rem;margin-top:.25rem;display:flex}.bwgstuff-btn[data-v-163674e9]{color:#fff;font:inherit;cursor:pointer;background:#2563eb;border:none;border-radius:6px;padding:.5rem 1rem}.bwgstuff-btn--ghost[data-v-163674e9]{color:#1a1a1a;background:0 0;border:1px solid #ccc}
+_virtual_monkey_css_side_effects_default(` .bwgstuff-overlay[data-v-1c9e0f51]{z-index:999999;background:#00000080;justify-content:center;align-items:center;font-family:system-ui,sans-serif;display:flex;position:fixed;inset:0}.bwgstuff-modal[data-v-1c9e0f51]{color:#1a1a1a;background:#fff;border-radius:12px;gap:1rem;width:min(420px,100vw - 32px);padding:1.5rem;display:grid;box-shadow:0 20px 45px #00000040}.bwgstuff-modal h2[data-v-1c9e0f51]{margin:0;font-size:1.1rem}.bwgstuff-field[data-v-1c9e0f51],.bwgstuff-checkbox[data-v-1c9e0f51]{gap:.35rem;font-size:.9rem;display:grid}.bwgstuff-checkbox[data-v-1c9e0f51]{grid-auto-flow:column;justify-content:start;align-items:center;gap:.5rem}.bwgstuff-field input[type=text][data-v-1c9e0f51]{font:inherit;border:1px solid #ccc;border-radius:6px;padding:.5rem .6rem}.bwgstuff-actions[data-v-1c9e0f51]{justify-content:flex-end;gap:.5rem;margin-top:.25rem;display:flex}.bwgstuff-btn[data-v-1c9e0f51]{color:#fff;font:inherit;cursor:pointer;background:#2563eb;border:none;border-radius:6px;padding:.5rem 1rem;transition:transform .15s,box-shadow .15s,background-color .15s}.bwgstuff-btn[data-v-1c9e0f51]:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 6px 14px #2563eb59}.bwgstuff-btn[data-v-1c9e0f51]:active{box-shadow:none;transform:translateY(0)}.bwgstuff-btn--ghost[data-v-1c9e0f51]{color:#1a1a1a;background:0 0;border:1px solid #ccc}.bwgstuff-btn--ghost[data-v-1c9e0f51]:hover{box-shadow:none;background:#0000000d}
 /*$vite$:1*/ `);
 
 var _GM_addElement = (() => typeof GM_addElement != "undefined" ? GM_addElement : void 0)();
@@ -105,9 +105,11 @@ var _GM_addElement = (() => typeof GM_addElement != "undefined" ? GM_addElement 
 	};
 	var hostUrl = new Store(L$1.get("hostUrl", "https://bwg-data-api.serik.at"));
 	var autoCheck = new Store(L$1.get("autoCheck", true));
+	var normalizeCountries = new Store(L$1.get("normalizeCountries", true));
 	var settingsOpen = new Store(false);
 	hostUrl.subscribe((value) => L$1.set("hostUrl", value));
 	autoCheck.subscribe((value) => L$1.set("autoCheck", value));
+	normalizeCountries.subscribe((value) => L$1.set("normalizeCountries", value));
 	var LOCATION_CHANGE_EVENT = "bwgstuff:locationchange";
 	var installed = false;
 	function installNavigationWatcher() {
@@ -160,8 +162,8 @@ function cloneRowClasses(container) {
 		const m = pathname.match(/^\/(volume|chapter)\/([A-Za-z0-9]+)(?:\/|$)/);
 		return m ? m[2] : null;
 	}
-	function fetchGeoblock(host, contentId) {
-		const url = `${host.replace(/\/$/, "")}/api/geoblocks/${encodeURIComponent(contentId)}?normalize=true`;
+	function fetchGeoblock(host, contentId, normalize) {
+		const url = `${host.replace(/\/$/, "")}/api/geoblocks/${encodeURIComponent(contentId)}?normalize=${normalize}`;
 		return new Promise((resolve, reject) => {
 			F$1.get(url, {
 				timeout: 1e4,
@@ -206,8 +208,15 @@ function cloneRowClasses(container) {
   margin: 0;
   font: inherit;
   color: inherit;
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+.bwgstuff-link:hover {
+  text-decoration: underline;
+}
+.bwgstuff-link:active {
+  opacity: 0.7;
 }
 `;
 	function makeLinkButton(text, onClick) {
@@ -252,7 +261,7 @@ function cloneRowClasses(container) {
 	async function runCheck(contentId, valueEl) {
 		renderLoading(valueEl);
 		try {
-			renderSuccess(valueEl, (await fetchGeoblock(hostUrl.value, contentId)).geoBlocks);
+			renderSuccess(valueEl, (await fetchGeoblock(hostUrl.value, contentId, normalizeCountries.value)).geoBlocks);
 		} catch (err) {
 			console.warn("[bwg-geoblock] check failed:", err);
 			renderError(valueEl, () => runCheck(contentId, valueEl));
@@ -329,6 +338,10 @@ function startGeoblockInjector() {
 			teardownRow();
 			scheduleSync();
 		});
+		normalizeCountries.subscribe(() => {
+			teardownRow();
+			scheduleSync();
+		});
 	}
 	N$1.register("BWG Settings", () => {
 		settingsOpen.value = true;
@@ -338,12 +351,14 @@ function startGeoblockInjector() {
 	var _hoisted_1 = { class: "bwgstuff-modal" };
 	var _hoisted_2 = { class: "bwgstuff-field" };
 	var _hoisted_3 = { class: "bwgstuff-checkbox" };
+	var _hoisted_4 = { class: "bwgstuff-checkbox" };
 	var app_vue_vue_type_script_setup_true_lang_default = (0, vue.defineComponent)({
 		__name: "app",
 		setup(__props) {
 			const isOpen = (0, vue.ref)(settingsOpen.value);
 			const draftHostUrl = (0, vue.ref)(hostUrl.value);
 			const draftAutoCheck = (0, vue.ref)(autoCheck.value);
+			const draftNormalize = (0, vue.ref)(normalizeCountries.value);
 			let unsubscribe;
 			(0, vue.onMounted)(() => {
 				unsubscribe = settingsOpen.subscribe((open) => {
@@ -351,6 +366,7 @@ function startGeoblockInjector() {
 					if (open) {
 						draftHostUrl.value = hostUrl.value;
 						draftAutoCheck.value = autoCheck.value;
+						draftNormalize.value = normalizeCountries.value;
 					}
 				});
 			});
@@ -360,6 +376,7 @@ function startGeoblockInjector() {
 			function save() {
 				hostUrl.value = draftHostUrl.value.trim();
 				autoCheck.value = draftAutoCheck.value;
+				normalizeCountries.value = draftNormalize.value;
 				settingsOpen.value = false;
 			}
 			function cancel() {
@@ -371,8 +388,8 @@ function startGeoblockInjector() {
 					class: "bwgstuff-overlay",
 					onClick: (0, vue.withModifiers)(cancel, ["self"])
 				}, [(0, vue.createElementVNode)("div", _hoisted_1, [
-					_cache[4] || (_cache[4] = (0, vue.createElementVNode)("h2", null, "BWG Settings", -1)),
-					(0, vue.createElementVNode)("label", _hoisted_2, [_cache[2] || (_cache[2] = (0, vue.createElementVNode)("span", null, "Host URL", -1)), (0, vue.withDirectives)((0, vue.createElementVNode)("input", {
+					_cache[6] || (_cache[6] = (0, vue.createElementVNode)("h2", null, "BWG Data Settings", -1)),
+					(0, vue.createElementVNode)("label", _hoisted_2, [_cache[3] || (_cache[3] = (0, vue.createElementVNode)("span", null, "Host URL", -1)), (0, vue.withDirectives)((0, vue.createElementVNode)("input", {
 						"onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => draftHostUrl.value = $event),
 						type: "text",
 						placeholder: "https://your-bwg-data-stuff-host"
@@ -380,7 +397,11 @@ function startGeoblockInjector() {
 					(0, vue.createElementVNode)("label", _hoisted_3, [(0, vue.withDirectives)((0, vue.createElementVNode)("input", {
 						"onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => draftAutoCheck.value = $event),
 						type: "checkbox"
-					}, null, 512), [[vue.vModelCheckbox, draftAutoCheck.value]]), _cache[3] || (_cache[3] = (0, vue.createElementVNode)("span", null, "Enable auto geo-block check", -1))]),
+					}, null, 512), [[vue.vModelCheckbox, draftAutoCheck.value]]), _cache[4] || (_cache[4] = (0, vue.createElementVNode)("span", null, "Enable auto geo-block check", -1))]),
+					(0, vue.createElementVNode)("label", _hoisted_4, [(0, vue.withDirectives)((0, vue.createElementVNode)("input", {
+						"onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => draftNormalize.value = $event),
+						type: "checkbox"
+					}, null, 512), [[vue.vModelCheckbox, draftNormalize.value]]), _cache[5] || (_cache[5] = (0, vue.createElementVNode)("span", null, "Normalize country names", -1))]),
 					(0, vue.createElementVNode)("div", { class: "bwgstuff-actions" }, [(0, vue.createElementVNode)("button", {
 						type: "button",
 						class: "bwgstuff-btn bwgstuff-btn--ghost",
@@ -399,7 +420,7 @@ function startGeoblockInjector() {
 		for (const [key, val] of props) target[key] = val;
 		return target;
 	};
-	var app_default = _plugin_vue_export_helper_default(app_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-163674e9"]]);
+	var app_default = _plugin_vue_export_helper_default(app_vue_vue_type_script_setup_true_lang_default, [["__scopeId", "data-v-1c9e0f51"]]);
 	var e = {
 		UNKNOWN: "MAKOO_UNKNOWN",
 		ADAPTER_NOT_FOUND: "MAKOO_ADAPTER_NOT_FOUND",

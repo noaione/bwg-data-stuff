@@ -1,7 +1,7 @@
 import { gmStyle } from '@makoojs/cli/monkey';
 import { findAttributeGroupList, cloneRowClasses } from './dom';
 import { fetchGeoblock, getGeoblockLines, parseContentId, type GeoBlocks } from './api';
-import { hostUrl, autoCheck, settingsOpen } from './settings';
+import { hostUrl, autoCheck, normalizeCountries, settingsOpen } from './settings';
 import { LOCATION_CHANGE_EVENT } from './navigation';
 
 const LINK_BUTTON_CSS = `
@@ -12,8 +12,15 @@ const LINK_BUTTON_CSS = `
   margin: 0;
   font: inherit;
   color: inherit;
-  text-decoration: underline;
+  text-decoration: none;
   cursor: pointer;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+.bwgstuff-link:hover {
+  text-decoration: underline;
+}
+.bwgstuff-link:active {
+  opacity: 0.7;
 }
 `;
 
@@ -73,7 +80,7 @@ function renderError(valueEl: HTMLElement, onRetry: () => void): void {
 async function runCheck(contentId: string, valueEl: HTMLElement): Promise<void> {
   renderLoading(valueEl);
   try {
-    const data = await fetchGeoblock(hostUrl.value, contentId);
+    const data = await fetchGeoblock(hostUrl.value, contentId, normalizeCountries.value);
     renderSuccess(valueEl, data.geoBlocks);
   } catch (err) {
     console.warn('[bwg-geoblock] check failed:', err);
@@ -197,6 +204,10 @@ export function startGeoblockInjector(): void {
     scheduleSync();
   });
   autoCheck.subscribe(() => {
+    teardownRow();
+    scheduleSync();
+  });
+  normalizeCountries.subscribe(() => {
     teardownRow();
     scheduleSync();
   });

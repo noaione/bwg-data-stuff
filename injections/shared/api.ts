@@ -18,8 +18,12 @@ export type GeoblockResponse = {
   geoBlocks: GeoBlocks;
 };
 
-export function fetchGeoblock(host: string, contentId: string): Promise<GeoblockResponse> {
-  const url = `${host.replace(/\/$/, '')}/api/geoblocks/${encodeURIComponent(contentId)}?normalize=true`;
+export function fetchGeoblock(
+  host: string,
+  contentId: string,
+  normalize: boolean,
+): Promise<GeoblockResponse> {
+  const url = `${host.replace(/\/$/, '')}/api/geoblocks/${encodeURIComponent(contentId)}?normalize=${normalize}`;
 
   return new Promise((resolve, reject) => {
     gmRequest.get<'text'>(url, {

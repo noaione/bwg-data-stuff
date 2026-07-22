@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { hostUrl, autoCheck, settingsOpen } from '../shared/settings';
+import { hostUrl, autoCheck, normalizeCountries, settingsOpen } from '../shared/settings';
 
-// hostUrl/autoCheck/settingsOpen are plain (non-Vue) Store instances shared
-// with the vanilla-TS geoblock injector (see shared/geoblock.ts) — bridge
-// them into local refs via subscribe() so the template stays reactive.
+// hostUrl/autoCheck/normalizeCountries/settingsOpen are plain (non-Vue) Store
+// instances shared with the vanilla-TS geoblock injector (see
+// shared/geoblock.ts) — bridge them into local refs via subscribe() so the
+// template stays reactive.
 const isOpen = ref(settingsOpen.value);
 const draftHostUrl = ref(hostUrl.value);
 const draftAutoCheck = ref(autoCheck.value);
+const draftNormalize = ref(normalizeCountries.value);
 
 let unsubscribe: (() => void) | undefined;
 
@@ -17,6 +19,7 @@ onMounted(() => {
     if (open) {
       draftHostUrl.value = hostUrl.value;
       draftAutoCheck.value = autoCheck.value;
+      draftNormalize.value = normalizeCountries.value;
     }
   });
 });
@@ -28,6 +31,7 @@ onBeforeUnmount(() => {
 function save() {
   hostUrl.value = draftHostUrl.value.trim();
   autoCheck.value = draftAutoCheck.value;
+  normalizeCountries.value = draftNormalize.value;
   settingsOpen.value = false;
 }
 
@@ -49,6 +53,11 @@ function cancel() {
       <label class="bwgstuff-checkbox">
         <input v-model="draftAutoCheck" type="checkbox" />
         <span>Enable auto geo-block check</span>
+      </label>
+
+      <label class="bwgstuff-checkbox">
+        <input v-model="draftNormalize" type="checkbox" />
+        <span>Normalize country names</span>
       </label>
 
       <div class="bwgstuff-actions">
@@ -123,11 +132,28 @@ function cancel() {
   color: #fff;
   font: inherit;
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.bwgstuff-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+  background: #1d4ed8;
+}
+
+.bwgstuff-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .bwgstuff-btn--ghost {
   background: transparent;
   color: #1a1a1a;
   border: 1px solid #ccc;
+}
+
+.bwgstuff-btn--ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: none;
 }
 </style>
