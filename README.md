@@ -85,6 +85,20 @@ Environment variables (see `.env.example` — copy it to `.env` for local develo
 | `BIND_ADDR` | `0.0.0.0:8362` | Address the HTTP server binds to |
 | `REFRESH_SECRET` | *(required)* | Secret required to call `/internal/refresh` |
 
+## Running
+
+With Docker:
+```bash
+docker compose up -d
+```
+
+Without docker:
+```bash
+# Ensure you have rust
+cargo build --release
+./target/release/bwg-data-stuff
+```
+
 ## License
 
 The code is licensed under the [MIT License](LICENSE).

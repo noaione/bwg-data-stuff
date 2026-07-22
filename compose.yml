@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    container_name: bwg-data-stuff
+    ports:
+      - "${DOCKER_PORT:-8362}:8362"
+    environment:
+      REFRESH_SECRET: "${REFRESH_SECRET:?REFRESH_SECRET must be set}"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
