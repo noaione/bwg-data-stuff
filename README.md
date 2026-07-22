@@ -104,12 +104,16 @@ cargo build --release
 
 `injections/` is a [Makoo](https://makoojs.github.io/Makoo/) (Vue) userscript project that injects live geo-block info directly into BookWalker's own volume/chapter pages, next to the existing SERIES/PUBLISHER/ARTIST attribute list.
 
-Build it:
+The built userscript is checked into the repo at [`dist/bwg-data-stuff.user.js`](dist/bwg-data-stuff.user.js) — just install that file directly in Tampermonkey/Violentmonkey, no build step required.
+
+To build it yourself instead (e.g. after making changes):
 ```bash
 pnpm install
 pnpm build
 ```
-This produces `dist/bwg-data-stuff.user.js`. Install it in Tampermonkey/Violentmonkey, then open the userscript manager's **BWG Settings** menu command to set the Host URL to a running instance of this API (defaults to `https://bwg-data-api.serik.at`). "Enable auto geo-block check" controls whether the check runs automatically on page load or only when you click "Check geo-blocking".
+This regenerates `dist/bwg-data-stuff.user.js`.
+
+Either way, once installed, open the userscript manager's **BWG Settings** menu command to set the Host URL to a running instance of this API (defaults to `https://bwg-data-api.serik.at`). "Enable auto geo-block check" controls whether the check runs automatically on page load or only when you click "Check geo-blocking", and "Normalize country names" controls whether allow/block lists show full country names or raw ISO codes.
 
 For local development, `pnpm dev` starts a dev server with HMR (per Makoo's own workflow).
 
