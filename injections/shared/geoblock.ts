@@ -1,6 +1,6 @@
 import { gmStyle } from '@makoojs/cli/monkey';
 import { findAttributeGroupList, cloneRowClasses } from './dom';
-import { fetchGeoblock, formatGeoblock, parseContentId } from './api';
+import { fetchGeoblock, getGeoblockLines, parseContentId, type GeoBlocks } from './api';
 import { hostUrl, autoCheck, settingsOpen } from './settings';
 import { LOCATION_CHANGE_EVENT } from './navigation';
 
@@ -43,8 +43,24 @@ function renderLoading(valueEl: HTMLElement): void {
   valueEl.textContent = 'Checking…';
 }
 
-function renderSuccess(valueEl: HTMLElement, text: string): void {
-  valueEl.textContent = text;
+function renderSuccess(valueEl: HTMLElement, gb: GeoBlocks): void {
+  const lines = getGeoblockLines(gb);
+  const nodes: Node[] = [];
+
+  lines.forEach((line, index) => {
+    if (index > 0) {
+      nodes.push(document.createElement('br'));
+      nodes.push(document.createElement('br'));
+    };
+    if (line.label) {
+      const strong = document.createElement('strong');
+      strong.textContent = `${line.label}: `;
+      nodes.push(strong);
+    }
+    nodes.push(document.createTextNode(line.text));
+  });
+
+  valueEl.replaceChildren(...nodes);
 }
 
 function renderError(valueEl: HTMLElement, onRetry: () => void): void {
@@ -58,7 +74,7 @@ async function runCheck(contentId: string, valueEl: HTMLElement): Promise<void> 
   renderLoading(valueEl);
   try {
     const data = await fetchGeoblock(hostUrl.value, contentId);
-    renderSuccess(valueEl, formatGeoblock(data.geoBlocks));
+    renderSuccess(valueEl, data.geoBlocks);
   } catch (err) {
     console.warn('[bwg-geoblock] check failed:', err);
     renderError(valueEl, () => runCheck(contentId, valueEl));

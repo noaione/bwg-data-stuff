@@ -178,12 +178,25 @@ function cloneRowClasses(container) {
 			});
 		});
 	}
-	function formatGeoblock(gb) {
-		if (gb.global) return gb.blocked.length > 0 ? `Available worldwide (except ${gb.blocked.join(", ")})` : "Available worldwide";
-		const clauses = [];
-		if (gb.allowed.length > 0) clauses.push(`Available in ${gb.allowed.join(", ")}`);
-		if (gb.blocked.length > 0) clauses.push(`Blocked in ${gb.blocked.join(", ")}`);
-		return clauses.length > 0 ? clauses.join("; ") : "No geo-block data available";
+	function getGeoblockLines(gb) {
+		const lines = [];
+		if (gb.global) lines.push({
+			label: "",
+			text: "Available worldwide"
+		});
+		else if (gb.allowed.length > 0) lines.push({
+			label: "Allowed",
+			text: gb.allowed.join(", ")
+		});
+		if (gb.blocked.length > 0) lines.push({
+			label: "Blocked",
+			text: gb.blocked.join(", ")
+		});
+		if (lines.length === 0) lines.push({
+			label: "",
+			text: "No geo-block data available"
+		});
+		return lines;
 	}
 	var LINK_BUTTON_CSS = `
 .bwgstuff-link {
@@ -216,8 +229,22 @@ function cloneRowClasses(container) {
 	function renderLoading(valueEl) {
 		valueEl.textContent = "Checking…";
 	}
-	function renderSuccess(valueEl, text) {
-		valueEl.textContent = text;
+	function renderSuccess(valueEl, gb) {
+		const lines = getGeoblockLines(gb);
+		const nodes = [];
+		lines.forEach((line, index) => {
+			if (index > 0) {
+				nodes.push(document.createElement("br"));
+				nodes.push(document.createElement("br"));
+			}
+			if (line.label) {
+				const strong = document.createElement("strong");
+				strong.textContent = `${line.label}: `;
+				nodes.push(strong);
+			}
+			nodes.push(document.createTextNode(line.text));
+		});
+		valueEl.replaceChildren(...nodes);
 	}
 	function renderError(valueEl, onRetry) {
 		valueEl.replaceChildren(document.createTextNode("Unable to check geo-blocking — "), makeLinkButton("Retry", onRetry));
@@ -225,7 +252,7 @@ function cloneRowClasses(container) {
 	async function runCheck(contentId, valueEl) {
 		renderLoading(valueEl);
 		try {
-			renderSuccess(valueEl, formatGeoblock((await fetchGeoblock(hostUrl.value, contentId)).geoBlocks));
+			renderSuccess(valueEl, (await fetchGeoblock(hostUrl.value, contentId)).geoBlocks);
 		} catch (err) {
 			console.warn("[bwg-geoblock] check failed:", err);
 			renderError(valueEl, () => runCheck(contentId, valueEl));

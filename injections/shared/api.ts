@@ -41,20 +41,32 @@ export function fetchGeoblock(host: string, contentId: string): Promise<Geoblock
   });
 }
 
-export function formatGeoblock(gb: GeoBlocks): string {
+export type GeoblockLine = {
+  /** Bolded prefix, e.g. "Allowed"/"Blocked". Empty for a plain line. */
+  label: string;
+  text: string;
+};
+
+export function getGeoblockLines(gb: GeoBlocks): GeoblockLine[] {
   // A geoblock can carry an allow list and a block list at the same time
   // (e.g. an explicit allow list layered under a worldwide baseline, or
-  // both an allow and a block list with no worldwide baseline at all) —
-  // both need to show up, not just whichever branch happened to match first.
+  // both an allow and a block list with no worldwide baseline at all) — both
+  // need their own line, not just whichever happened to be checked first.
+  const lines: GeoblockLine[] = [];
+
   if (gb.global) {
-    return gb.blocked.length > 0
-      ? `Available worldwide (except ${gb.blocked.join(', ')})`
-      : 'Available worldwide';
+    lines.push({ label: '', text: 'Available worldwide' });
+  } else if (gb.allowed.length > 0) {
+    lines.push({ label: 'Allowed', text: gb.allowed.join(', ') });
   }
 
-  const clauses: string[] = [];
-  if (gb.allowed.length > 0) clauses.push(`Available in ${gb.allowed.join(', ')}`);
-  if (gb.blocked.length > 0) clauses.push(`Blocked in ${gb.blocked.join(', ')}`);
+  if (gb.blocked.length > 0) {
+    lines.push({ label: 'Blocked', text: gb.blocked.join(', ') });
+  }
 
-  return clauses.length > 0 ? clauses.join('; ') : 'No geo-block data available';
+  if (lines.length === 0) {
+    lines.push({ label: '', text: 'No geo-block data available' });
+  }
+
+  return lines;
 }
