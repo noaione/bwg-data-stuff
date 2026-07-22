@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Builder stage ----
-FROM rust:1.88-bookworm AS builder
+FROM rust:1.97.1-bookworm AS builder
 
 # aws-lc-sys (via rustls/reqwest) needs cmake + go + a C compiler
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -14,12 +14,12 @@ WORKDIR /app
 # Cache dependencies: copy manifests first, build a dummy binary, then discard it
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo 'fn main() {}' > src/main.rs \
-    && cargo build --release \
+    && cargo build --release --locked \
     && rm -rf src target/release/bwg-data-stuff
 
 # Build the real binary
 COPY . .
-RUN cargo build --release
+RUN cargo build --release --locked
 
 # ---- Runtime stage ----
 FROM debian:bookworm-slim
